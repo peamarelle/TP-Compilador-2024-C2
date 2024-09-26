@@ -1,1 +1,58 @@
-c=d*(e-21)/4
+init {
+    variable1 : Int
+    variable2 : String
+    a1, b1 : Float
+    p1, p2, p3 : String
+}
+
+a = 10 + 1
+ciclo ( 1 < 10 )
+{
+    a = 10 + 1
+}
+
+if ( 1 >= 10 )
+{
+    a = 10 + 2
+}
+
+if ( 1 <= 10 )
+{
+    a = 10 + 2
+}
+else
+{
+    a = 10 + 2
+}
+*-holamundo-*
+
+base = 1
+read(base)
+write(base)
+
+a = 1
+b = 1
+c = 2
+
+if (a > b & c > b)
+{
+    write("a es mas grande que b y c es mas grande que b")
+}
+
+if (a > b || c > b)
+{
+    write("a es mas grande que b o c es mas grande que b")
+}
+
+if (not a > b)
+{
+    write("a no es mas grande que b")
+}
+
+a = 99999.99
+a = 99.
+a = .9999
+d = "asldk  fh sjf"
+d = "@sdADaSjfla%dfg"
+a = 1
+e = 1.1

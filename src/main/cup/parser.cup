@@ -1,9 +1,27 @@
 package lyc.compiler;
 
 import java_cup.runtime.*;
+import java.util.*;
+import lyc.compiler.simbolsTable.SimbolTable;
+import lyc.compiler.simbolsTable.SimbolRow;
+import lyc.compiler.simbolsTable.DataType;
 
 class Parser;
+action code{:
+    public SimbolTable simbolTable = SimbolTable.getSingletonInstance();
+    public ArrayList<String> identifiersList = new ArrayList();
+    ArrayList<Object> element = new ArrayList<Object>();
+    int medio;
+    public void agregar_a_lista(Object elem)  {
+            element.add(elem);
+        }
+:}
 
+parser code{:
+    public List<SimbolRow> getListaSimbolos() {
+        return action_obj.simbolTable.getListaSimbolos();
+    }
+:}
 
 // Terminals
 terminal ASSIG;
@@ -14,26 +32,132 @@ terminal DIV;
 terminal OPEN_BRACKET;
 terminal CLOSE_BRACKET;
 terminal INTEGER_CONSTANT;
+terminal STRING_CONSTANT;
+terminal FLOAT_CONSTANT;
 terminal IDENTIFIER;
+terminal WHILE;
+terminal IF;
+terminal ELSE;
+terminal READ;
+terminal WRITE;
+terminal OPEN_CURLY_BRACKET;
+terminal CLOSE_CURLY_BRACKET;
+terminal LESS_THAN;
+terminal LESS_EQUAL_THAN;
+terminal GREATER_THAN;
+terminal GREATER_EQUAL_THAN;
+terminal AND;
+terminal OR;
+terminal NOT;
+terminal INIT;
+terminal DOUBLE_POINTS;
+terminal FLOAT;
+terminal STRING;
+terminal INT;
+terminal COMMA;
 
 // Non Terminals
 non terminal sentence;
+non terminal block;
 non terminal assignment;
 non terminal expression;
 non terminal term;
 non terminal factor;
+non terminal iteration;
+non terminal selection;
+non terminal condition;
+non terminal comparation;
+non terminal comparator;
+non terminal initiation;
+non terminal declare;
+non terminal variable;
+non terminal program;
+non terminal params;
+non terminal element;
 
 // Start Symbol Definition
-start with sentence;
+start with program;
 
-sentence ::= assignment {: System.out.println("End"); :};
+program ::= initiation block;
+
+block ::= sentence {: System.out.println("Block"); :};
+block ::= block sentence {: System.out.println("Blocks"); :};
+
+sentence ::= assignment {: System.out.println("End Sentence"); :};
+
+params ::= element  {: System.out.println("Param"); :};
+params ::= params COMMA element {: System.out.println("Params"); :};
+
+element ::= IDENTIFIER:id  {: agregar_a_lista(id);System.out.println(id); :};
+element ::= INTEGER_CONSTANT:constant {: agregar_a_lista(constant);System.out.println("Param"); :};
+element ::= STRING_CONSTANT:constant {: agregar_a_lista(constant);System.out.println("Param"); :};
+element ::= FLOAT_CONSTANT:constant {: agregar_a_lista(constant);System.out.println("Param"); :};
+
+sentence ::= iteration {: System.out.println("Sentence interation"); :};
+
+sentence ::= selection {: System.out.println("Sentence selecction"); :};
+
+sentence ::= READ OPEN_BRACKET IDENTIFIER CLOSE_BRACKET {: System.out.println("Read"); :};
+
+sentence ::= WRITE OPEN_BRACKET STRING_CONSTANT CLOSE_BRACKET {: System.out.println("Write string constant"); :};
+sentence ::= WRITE OPEN_BRACKET IDENTIFIER CLOSE_BRACKET {: System.out.println("Write"); :};
+
+iteration ::= WHILE OPEN_BRACKET condition CLOSE_BRACKET OPEN_CURLY_BRACKET block CLOSE_CURLY_BRACKET {:System.out.println("While"); :};
+
+selection ::= IF OPEN_BRACKET condition CLOSE_BRACKET OPEN_CURLY_BRACKET block CLOSE_CURLY_BRACKET {:System.out.println("If"); :};
+
+selection ::= IF OPEN_BRACKET condition CLOSE_BRACKET OPEN_CURLY_BRACKET block CLOSE_CURLY_BRACKET ELSE OPEN_CURLY_BRACKET block CLOSE_CURLY_BRACKET {:System.out.println("If with Else"); :};
+
+condition ::= comparation {: System.out.println("Condition"); :};
+
+condition ::= NOT comparation {: System.out.println("Condition with not"); :};
+
+condition ::= comparation AND comparation {: System.out.println("And"); :};
+
+condition ::= comparation OR comparation {: System.out.println("And"); :};
+
+comparation ::= expression comparator expression {: System.out.println("Comparation"); :};
+
+comparator ::= LESS_THAN {: System.out.println("<"); :};
+comparator ::= GREATER_THAN {: System.out.println(">"); :};
+comparator ::= LESS_EQUAL_THAN {: System.out.println("<="); :};
+comparator ::= GREATER_EQUAL_THAN {: System.out.println(">="); :};
+
 assignment ::= IDENTIFIER ASSIG expression {: System.out.println("Assignment"); :};
+
 expression ::= expression PLUS term {: System.out.println("+"); :};
 expression ::= expression SUB term {: System.out.println("-"); :};
 expression ::= term {: System.out.println("Expression = Term"); :};
 term ::= term MULT factor {: System.out.println("*"); :};
 term ::= term DIV factor {: System.out.println("/"); :};
 term ::= factor {: System.out.println("Term = factor"); :};
-factor ::= IDENTIFIER:id  {: System.out.println("Id: " + id); :};
-factor ::= INTEGER_CONSTANT:constant {: System.out.println("Constant: " + constant ); :};
+factor ::= IDENTIFIER:id  
+{: 
+    System.out.println("Id: " + id);
+:};
+factor ::= INTEGER_CONSTANT:constant 
+{: 
+    System.out.println("Constant integer: " + constant );
+    simbolTable.add("_"+constant, DataType.INT, constant.toString(), null); 
+:};
+factor ::= STRING_CONSTANT:constant  
+{: 
+    System.out.println("Constant string: " + constant );
+    simbolTable.add("_"+constant, DataType.STRING, constant.toString(), null);
+:};
+factor ::= FLOAT_CONSTANT:constant   
+{: 
+    System.out.println("Constant float: " + constant ); 
+    simbolTable.add("_"+constant, DataType.FLOAT, constant.toString(), null);
+:};
 factor ::= OPEN_BRACKET expression CLOSE_BRACKET {: System.out.println("Factor = (Expression)"); :};
+
+initiation ::= INIT OPEN_CURLY_BRACKET declare CLOSE_CURLY_BRACKET;
+
+declare ::= variable;
+declare ::= declare variable;
+
+variable ::= IDENTIFIER:id DOUBLE_POINTS INT {: simbolTable.add(""+id, DataType.INT, null, null); :};
+variable ::= IDENTIFIER:id DOUBLE_POINTS STRING {: simbolTable.add(""+id, DataType.STRING, null, null); :};
+variable ::= IDENTIFIER:id DOUBLE_POINTS FLOAT {: simbolTable.add(""+id, DataType.FLOAT, null, null); :};
+variable ::= IDENTIFIER COMMA variable;
